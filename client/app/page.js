@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Head from "next/head";
+import Select from "react-select";
 
 export default function BFHLPage() {
   const [mounted, setMounted] = useState(false);
@@ -56,7 +57,7 @@ export default function BFHLPage() {
       const data = await response.json();
       setResponse(data);
       // Set default selection after successful response
-      setSelectedOptions(["numbers"]);
+      setSelectedOptions([filterOptions[0]]);
     } catch (err) {
       setError("Error processing request");
     } finally {
@@ -64,12 +65,8 @@ export default function BFHLPage() {
     }
   };
 
-  const handleOptionChange = (e) => {
-    const options = Array.from(
-      e.target.selectedOptions,
-      (option) => option.value
-    );
-    setSelectedOptions(options);
+  const handleOptionChange = (selected) => {
+    setSelectedOptions(selected);
   };
 
   const getFilteredResponse = () => {
@@ -77,13 +74,15 @@ export default function BFHLPage() {
 
     let filteredResponse = [];
 
-    if (selectedOptions.includes("numbers")) {
+    const selectedValues = selectedOptions.map((option) => option.value);
+
+    if (selectedValues.includes("numbers")) {
       filteredResponse.push(`Numbers: ${response.numbers.join(",")}`);
     }
-    if (selectedOptions.includes("highest")) {
+    if (selectedValues.includes("highest")) {
       filteredResponse.push(`Highest Alphabet: ${response.highest_alphabet}`);
     }
-    if (selectedOptions.includes("alphabets")) {
+    if (selectedValues.includes("alphabets")) {
       filteredResponse.push(`Alphabets: ${response.alphabets.join(",")}`);
     }
 
@@ -121,18 +120,13 @@ export default function BFHLPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Multi Filter
                 </label>
-                <select
-                  multiple
-                  className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                <Select
+                  isMulti
+                  options={filterOptions}
                   value={selectedOptions}
                   onChange={handleOptionChange}
-                >
-                  {filterOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                  className="w-full"
+                />
               </div>
 
               <button
