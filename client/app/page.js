@@ -42,7 +42,7 @@ export default function BFHLPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/bfhl", {
+      const response = await fetch("https://bajaj-9plf.vercel.app/bfhl", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -56,8 +56,7 @@ export default function BFHLPage() {
 
       const data = await response.json();
       setResponse(data);
-      // Set default selection after successful response
-      setSelectedOptions([filterOptions[0]]);
+      setSelectedOptions([]);
     } catch (err) {
       setError("Error processing request");
     } finally {
@@ -73,17 +72,26 @@ export default function BFHLPage() {
     if (!response) return null;
 
     let filteredResponse = [];
-
     const selectedValues = selectedOptions.map((option) => option.value);
 
+    if (selectedValues.length === 0) {
+      return [
+        `Numbers: ${response.numbers.join(", ")}`,
+        `Highest Alphabet: ${response.highest_alphabet.join(", ")}`,
+        `Alphabets: ${response.alphabets.join(", ")}`,
+      ];
+    }
+
     if (selectedValues.includes("numbers")) {
-      filteredResponse.push(`Numbers: ${response.numbers.join(",")}`);
+      filteredResponse.push(`Numbers: ${response.numbers.join(", ")}`);
     }
     if (selectedValues.includes("highest")) {
-      filteredResponse.push(`Highest Alphabet: ${response.highest_alphabet}`);
+      filteredResponse.push(
+        `Highest Alphabet: ${response.highest_alphabet.join(", ")}`
+      );
     }
     if (selectedValues.includes("alphabets")) {
-      filteredResponse.push(`Alphabets: ${response.alphabets.join(",")}`);
+      filteredResponse.push(`Alphabets: ${response.alphabets.join(", ")}`);
     }
 
     return filteredResponse;
@@ -96,7 +104,7 @@ export default function BFHLPage() {
   return (
     <>
       <Head>
-        <title>Your Roll Number</title>
+        <title>{response?.roll_number || "Your Roll Number"}</title>
       </Head>
 
       <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 text-black">
@@ -113,19 +121,6 @@ export default function BFHLPage() {
                   className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   value={jsonInput}
                   onChange={(e) => setJsonInput(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Multi Filter
-                </label>
-                <Select
-                  isMulti
-                  options={filterOptions}
-                  value={selectedOptions}
-                  onChange={handleOptionChange}
-                  className="w-full"
                 />
               </div>
 
@@ -146,15 +141,27 @@ export default function BFHLPage() {
           {/* Filter and Response Section */}
           {response && (
             <div className="bg-white shadow-sm rounded-lg p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Multi Filter
+                </label>
+                <Select
+                  isMulti
+                  options={filterOptions}
+                  value={selectedOptions}
+                  onChange={handleOptionChange}
+                  className="w-full"
+                />
+              </div>
               {selectedOptions.length > 0 && (
                 <div>
                   <h3 className="text-sm font-medium text-gray-700 mb-2">
                     Filtered Response
                   </h3>
                   <div className="space-y-1">
-                    {getFilteredResponse().map((response, index) => (
+                    {getFilteredResponse().map((res, index) => (
                       <div key={index} className="text-gray-900">
-                        {response}
+                        {res}
                       </div>
                     ))}
                   </div>
