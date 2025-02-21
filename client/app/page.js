@@ -64,14 +64,12 @@ export default function BFHLPage() {
     }
   };
 
-  const handleOptionChange = (option) => {
-    setSelectedOptions((prevSelected) => {
-      if (prevSelected.includes(option)) {
-        return prevSelected.filter((item) => item !== option);
-      } else {
-        return [...prevSelected, option];
-      }
-    });
+  const handleOptionChange = (e) => {
+    const options = Array.from(
+      e.target.selectedOptions,
+      (option) => option.value
+    );
+    setSelectedOptions(options);
   };
 
   const getFilteredResponse = () => {
@@ -119,6 +117,24 @@ export default function BFHLPage() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Multi Filter
+                </label>
+                <select
+                  multiple
+                  className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  value={selectedOptions}
+                  onChange={handleOptionChange}
+                >
+                  {filterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <button
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 onClick={handleSubmit}
@@ -136,30 +152,6 @@ export default function BFHLPage() {
           {/* Filter and Response Section */}
           {response && (
             <div className="bg-white shadow-sm rounded-lg p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Multi Filter
-                </label>
-                <div className="space-x-2">
-                  {filterOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => handleOptionChange(option.value)}
-                      className={`inline-flex items-center px-3 py-1 rounded-md text-sm ${
-                        selectedOptions.includes(option.value)
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-gray-100 text-gray-700"
-                      } hover:bg-blue-50`}
-                    >
-                      {option.label}
-                      {selectedOptions.includes(option.value) && (
-                        <span className="ml-1">✕</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {selectedOptions.length > 0 && (
                 <div>
                   <h3 className="text-sm font-medium text-gray-700 mb-2">
