@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-
 import { app } from "./app.js";
 import DatabaseConnection from "./src/database/DatabaseConnection.js";
 
@@ -7,18 +6,19 @@ dotenv.config({
   path: ".env",
 });
 
-DatabaseConnection()
-  .then(() => {
-    app.on("error", (error) => {
-      console.log("Express can't connect with the mongoDB", error);
-    });
-    app.listen(process.env.PORT, () => {
-      console.log(process.env.PORT);
-      console.log(
-        `The server is runnign on http://localhost:${process.env.PORT}`
-      );
-    });
-  })
-  .catch((error) => {
-    console.log("MongoDB connection failed");
-  });
+let isConnected = false;
+
+export default async function handler(req, res) {
+  if (!isConnected) {
+    try {
+      await DatabaseConnection();
+      isConnected = true;
+      console.log("Connected to MongoDB");
+    } catch (error) {
+      console.error("MongoDB connection failed:", error);
+      return res.status(500).json({ error: "Database connection failed" });
+    }
+  }
+
+  app(req, res);
+}
